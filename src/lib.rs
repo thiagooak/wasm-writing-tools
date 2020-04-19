@@ -11,13 +11,29 @@ use writing_tools::check;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-extern "C" {
-    fn alert(s: &str);
-}
+pub fn check(input: String) -> String {
+    let working_version: String = input.clone();
+    let mut result: String = String::new();
+    let mut index: usize = 0;
 
-#[wasm_bindgen]
-pub fn greet() {
-    let input = String::from("Vivamus lacinia, libero ac lobortis iaculis, dui dui malesuada diam, eu interdum tellus risus nec leo class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque vel elit maximus, suscipit turpis a, elementum turpis. Vivamus sollicitudin arcu sit amet elementum fermentum. Vestibulum sed velit in dolor molestie congue. Vestibulum dui quam, pharetra non egestas id, ullamcorper et mauris. Vestibulum blandit felis quis ligula finibus commodo.");
-    let result = check::sentence_length::sentence_length(input);
-    alert(&result);
+    let mut long_words_errors = check::long_words::long_words(input);
+
+    // @TODO what happens when two erros start on the same line - HashMap with key = position and values = Vec<Markers>
+    long_words_errors.sort_by(|a, b| a.index_start.cmp(&b.index_start));
+    for e in long_words_errors {
+        let (_, unprocessed_input) = working_version.split_at(index);
+        let (unprecessed_before_error, _) = unprocessed_input.split_at(e.index_start - index);
+
+        result.push_str(unprecessed_before_error);
+        result.push_str("<span class=\"orange\">");
+        result.push_str(&e.original.clone());
+        result.push_str("</span>");
+
+        index = e.index_start + e.original.len();
+    }
+
+    let (_, unprocessed_input) = working_version.split_at(index);
+    result.push_str(unprocessed_input);
+
+    return result;
 }
