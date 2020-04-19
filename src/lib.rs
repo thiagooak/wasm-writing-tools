@@ -16,11 +16,15 @@ pub fn check(input: String) -> String {
     let mut result: String = String::new();
     let mut index: usize = 0;
 
-    let mut long_words_errors = check::long_words::long_words(input);
+    let mut errors = check::long_words::long_words(input.clone());
+    let mut sl_errors = check::sentence_length::sentence_length(input.clone());
+
+    errors.append(&mut sl_errors);
+
+    errors.sort_by(|a, b| a.index_start.cmp(&b.index_start));
 
     // @TODO what happens when two erros start on the same line - HashMap with key = position and values = Vec<Markers>
-    long_words_errors.sort_by(|a, b| a.index_start.cmp(&b.index_start));
-    for e in long_words_errors {
+    for e in errors {
         let (_, unprocessed_input) = working_version.split_at(index);
         let (unprecessed_before_error, _) = unprocessed_input.split_at(e.index_start - index);
 
