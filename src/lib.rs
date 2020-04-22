@@ -17,9 +17,9 @@ pub fn check(input: String) -> String {
     let mut index: usize = 0;
 
     let mut errors = check::long_words::long_words(input.clone());
-    let mut sl_errors = check::sentence_length::sentence_length(input.clone());
+    // let mut sl_errors = check::sentence_length::sentence_length(input.clone());
 
-    errors.append(&mut sl_errors);
+    // errors.append(&mut sl_errors);
 
     errors.sort_by(|a, b| a.index_start.cmp(&b.index_start));
 
@@ -29,7 +29,9 @@ pub fn check(input: String) -> String {
         let (unprecessed_before_error, _) = unprocessed_input.split_at(e.index_start - index);
 
         result.push_str(unprecessed_before_error);
-        result.push_str("<span class=\"orange\">");
+        result.push_str("<span class=\"orange\" title=\"");
+        result.push_str(&e.suggestion.clone());
+        result.push_str("\">");
         result.push_str(&e.original.clone());
         result.push_str("</span>");
 
